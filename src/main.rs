@@ -3,6 +3,7 @@ use std::fs;
 use std::error::Error;
 use walkdir::WalkDir;
 use glob;
+use colored::*;
 
 const INVALID_ARGS_INFO: &str = "Invalid arguments! User -h or --help for usage information.";
 
@@ -127,7 +128,7 @@ fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     // Open the files
     for file in files {
-        let contents = fs::read_to_string(file)?;
+        let contents = fs::read_to_string(&file)?;
         let lines = contents.lines();
         let mut line_no = 1;
 
@@ -144,7 +145,27 @@ fn run(config: Config) -> Result<(), Box<dyn Error>> {
             }
 
             if matched {
-                println!("{}", line);
+                // Build the output string
+                let mut output = String::new();
+                if config.print_filenames {
+                    output.push_str(&file);
+                    output.push_str(": ");
+                }
+                if config.print_line_no {
+                    output.push_str(&line_no.to_string());
+                    output.push_str(": ");
+                }
+                if config.coloured_output && !config.invert_match && !config.is_case_insensitive {
+                    // Find the index of the search string in the line, assuming `-i` and `-v` is not defined
+                    let index = line.find(&config.search_string).unwrap();
+                    print!("{}{}", output, line[0..index].to_string());
+                    print!("{}", &line[index..index + config.search_string.len()].red());
+                    println!("{}", &line[index + config.search_string.len()..]);
+                }
+                 else {
+                    output.push_str(&line);
+                    println!("{}", output);
+                }
             }
 
             line_no += 1;

@@ -19,7 +19,7 @@
                     "kind": "bin"
                 }
             },
-            "args": ["Utility", "tests/grep.md"],
+            "args": ["Utility",  "tests/grep.md", "tests/recursive/another_folder/others.md",  "-f", "-n", "-c", "-i"],
             "cwd": "${workspaceFolder}"
         },
         {
